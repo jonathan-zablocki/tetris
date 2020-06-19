@@ -1,10 +1,5 @@
 import React, { Component, createRef } from "react";
-import {
-	GAME_INTERVAL,
-	HEIGHT,
-	WIDTH,
-	HEIGHT_VIS,
-} from "../constants/constants.js";
+import * as CONST from "../constants/constants.js";
 
 class Canvas extends Component {
 	constructor(props) {
@@ -28,9 +23,9 @@ class Canvas extends Component {
 		const tetromino = this.props.tetromino;
 
 		// Draw Board
-		for (let j = 0; j < HEIGHT_VIS; j++) {
-			for (let i = 0; i < WIDTH; i++) {
-				drawCell({ x: i, y: j }, { x: 0, y: 0 }, board[j][i].value);
+		for (let j = 0; j < CONST.HEIGHT_VIS; j++) {
+			for (let i = 0; i < CONST.WIDTH; i++) {
+				drawCell({ x: i, y: j }, { x: 0, y: 0 }, board[j][i]);
 			}
 		}
 
@@ -38,25 +33,55 @@ class Canvas extends Component {
 		for (let j = 0; j < tetromino.cells.length; j++) {
 			for (let i = 0; i < tetromino.cells[0].length; i++) {
 				if (tetromino.cells[j][i]) {
-					drawCell({ x: i, y: j }, tetromino.origin, tetromino.value);
+					drawCell({ x: i, y: j }, tetromino.origin, tetromino.value, false);
 				}
 			}
 		}
 
-		function drawCell(pos, offset = { x: 0, y: 0 }, value = null) {
+		function drawCell(
+			pos,
+			offset = { x: 0, y: 0 },
+			value = null,
+			isLocked = true
+		) {
 			ctx.save();
 			ctx.beginPath();
-			ctx.translate(0, HEIGHT_VIS * 10);
-			ctx.scale(1, -1);
-			ctx.translate((pos.x + offset.x) * 10, (pos.y + offset.y) * 10);
-			if (value) {
-				ctx.fillStyle = "#e68a8a";
-			} else {
-				ctx.fillStyle = "#dcdcdc";
+			ctx.scale(1 * CONST.SCALE, -1 * CONST.SCALE);
+			ctx.translate(0, -CONST.HEIGHT_VIS);
+			ctx.translate(pos.x + offset.x, pos.y + offset.y);
+			const decSaturation = isLocked ? -20 : 0;
+			switch (value) {
+				case "I":
+					ctx.fillStyle = "hsl(192.7, " + (73.8 + decSaturation) + "%, 68.7%)";
+					break;
+				case "J":
+					ctx.fillStyle = "hsl(217.2, " + (100 + decSaturation) + "%, 36.7%)";
+					break;
+				case "L":
+					ctx.fillStyle = "hsl(38.3, " + (100 + decSaturation) + "%, 50%)";
+					break;
+				case "S":
+					ctx.fillStyle = "hsl(111.5, " + (67.4 + decSaturation) + "%, 50.6%)";
+					break;
+				case "Z":
+					ctx.fillStyle = "hsl(355.8, " + (85.4 + decSaturation) + "%, 56.9%)";
+					break;
+				case "T":
+					ctx.fillStyle = "hsl(300, " + (64 + decSaturation) + "%, 44.7%)";
+					break;
+				case "O":
+					ctx.fillStyle = "hsl(51.7, " + (100 + decSaturation) + "%, 49.8%)";
+					break;
+				default:
+					ctx.fillStyle = "hsl(214.3, 4%, 33.9%)";
+					break;
 			}
-			ctx.fillRect(0, 0, 10, 10);
-			ctx.strokeRect(0, 0, 10, 10);
+			ctx.fillRect(0, 0, 1, 1);
+			ctx.lineWidth = ~~(1 / CONST.SCALE);
+			ctx.beginPath();
+			ctx.rect(0, 0, 1, 1);
 			ctx.restore();
+			ctx.stroke();
 		}
 	};
 
@@ -70,9 +95,13 @@ class Canvas extends Component {
 						marginTop: 10,
 						marginLeft: 10,
 					}}
-					width={100}
-					height={200}
-				/>
+					width={CONST.WIDTH * CONST.SCALE}
+					height={CONST.HEIGHT_VIS * CONST.SCALE}
+				>
+					<p>
+						asldjfl;asdjfl;ajsd;lf jl;asjdf;lajs;dlfjdjkkkkkkkdkdkskasldflasdlf{" "}
+					</p>
+				</canvas>
 			</div>
 		);
 	}
@@ -98,10 +127,10 @@ export class Animation extends React.Component {
 			accumTime: Date.now() - this.state.lastUpdate,
 		});
 
-		while (this.state.accumTime >= GAME_INTERVAL) {
+		while (this.state.accumTime >= CONST.GAME_INTERVAL) {
 			this.setState({
 				lastUpdate: Date.now(),
-				accumTime: this.state.accumTime - GAME_INTERVAL,
+				accumTime: this.state.accumTime - CONST.GAME_INTERVAL,
 			});
 			this.props.nextGameStep();
 		}

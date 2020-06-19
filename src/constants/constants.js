@@ -75,21 +75,21 @@ export const S_ORIENT = [
 	].reverse(),
 
 	[
+		[0, 1, 0],
 		[0, 1, 1],
-		[1, 1, 0],
-		[0, 0, 0],
+		[0, 0, 1],
 	].reverse(),
 
 	[
+		[0, 0, 0],
 		[0, 1, 1],
 		[1, 1, 0],
-		[0, 0, 0],
 	].reverse(),
 
 	[
-		[0, 1, 1],
+		[0, 1, 0],
 		[1, 1, 0],
-		[0, 0, 0],
+		[1, 0, 0],
 	].reverse(),
 ];
 
@@ -151,7 +151,7 @@ export const O_ORIENT = [
 
 export const O = {
 	value: "O",
-	origin: { x: 4, y: 19 },
+	origin: { x: 4, y: 18 },
 	orient: 0,
 	cells: O_ORIENT[0],
 };
@@ -181,37 +181,60 @@ export const J_ORIENT = [
 
 export const J = {
 	value: "J",
-	origin: { x: 4, y: 19 },
-	orient: "J",
+	origin: { x: 4, y: 18 },
+	orient: 0,
 	cells: J_ORIENT[0],
 };
 
 export const L_ORIENT = [
 	[
-		[1, 0, 0],
-		[1, 1, 1],
-		[0, 0, 0],
-	].reverse(),
-	[
-		[0, 1, 1],
-		[0, 1, 0],
-		[0, 1, 0],
-	].reverse(),
-	[
-		[0, 0, 0],
-		[1, 1, 1],
 		[0, 0, 1],
+		[1, 1, 1],
+		[0, 0, 0],
 	].reverse(),
 	[
 		[0, 1, 0],
 		[0, 1, 0],
+		[0, 1, 1],
+	].reverse(),
+	[
+		[0, 0, 0],
+		[1, 1, 1],
+		[1, 0, 0],
+	].reverse(),
+	[
 		[1, 1, 0],
+		[0, 1, 0],
+		[0, 1, 0],
 	].reverse(),
 ];
 
 export const L = {
 	value: "L",
-	origin: { x: 4, y: 19 },
+	origin: { x: 4, y: 18 },
 	orient: 0,
 	cells: L_ORIENT[0],
 };
+
+export const LEVEL_SPEEDS = {
+	levels: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 13, 16, 19, 29],
+	speeds: [
+		800,
+		717,
+		633,
+		550,
+		467,
+		383,
+		300,
+		217,
+		133,
+		100,
+		83,
+		67,
+		50,
+		33,
+		17,
+	],
+};
+
+export const SCALE = 40;

@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
 import { Animation } from "./animation.jsx";
 import * as CONST from "../constants/constants.js";
 //import { tetromino } from "./tetromino.jsx";
@@ -11,19 +11,20 @@ class Game extends Component {
 		let board = [...Array(CONST.HEIGHT)].map(() => Array(CONST.WIDTH));
 		for (let j = 0; j < CONST.HEIGHT; j++) {
 			for (let i = 0; i < CONST.WIDTH; i++) {
-				board[j][i] = { value: 0 };
+				board[j][i] = 0;
 			}
 		}
 
 		this.state = {
 			board: board,
 			tetromino: this.createTetromino(),
-			dropTime: 500,
+			dropTime: CONST.LEVEL_SPEEDS.speeds[0],
 			lastDrop: Date.now(),
-			que: this.createTetromino(),
+			que: [this.createTetromino()],
 			hold: {},
+			score: 0,
+			linesCleared: 0,
 		};
-		console.log(this.state);
 	}
 
 	createTetromino = () => {
@@ -46,12 +47,37 @@ class Game extends Component {
 		let board = JSON.parse(JSON.stringify(this.state.board));
 
 		pos.forEach((pos) => {
-			board[pos.y][pos.x].value = this.state.tetromino.value;
+			board[pos.y][pos.x] = this.state.tetromino.value;
 		});
 
 		this.setState({
 			board: board,
 		});
+	};
+
+	clearLines = () => {
+		const cellPositions = this.findPos(this.state.tetromino);
+		const potentialRows = [...new Set(cellPositions.map((pos) => pos.y))];
+		const clearRows = potentialRows.filter((rowNum) => {
+			return !this.state.board[rowNum].includes(0);
+		});
+		//console.log(clearRows);
+
+		if (clearRows.length) {
+			let boardCopy = [...this.state.board];
+			clearRows.sort();
+			for (let i = clearRows.length - 1; i >= 0; i--) {
+				boardCopy.splice(clearRows[i], 1);
+				boardCopy.push(new Array(CONST.WIDTH).fill(0));
+			}
+
+			console.log(clearRows.length);
+
+			this.setState({
+				board: boardCopy,
+				linesCleared: this.state.linesCleared + clearRows.length,
+			});
+		}
 	};
 
 	nextGameStep = () => {
@@ -60,8 +86,16 @@ class Game extends Component {
 			copyTetromino.origin.y--;
 			if (this.checkCollision(copyTetromino)) {
 				this.lockTetromino();
+				this.clearLines();
+				const levelIndex = CONST.LEVEL_SPEEDS.levels.findIndex(
+					(element) => element >= ~~(this.linesCleard / 10)
+				);
+				const speed = CONST.LEVEL_SPEEDS.speeds[levelIndex];
 				this.setState({
-					tetromino: this.createTetromino(),
+					lastDrop: Date.now(),
+					tetromino: this.state.que.pop(),
+					que: [this.createTetromino(), ...this.state.que],
+					dropTime: speed,
 				});
 			} else {
 				this.setState({
@@ -90,7 +124,6 @@ class Game extends Component {
 
 	checkCollision = (tetromino) => {
 		const positions = this.findPos(tetromino);
-		console.log(positions);
 		const board = this.state.board;
 
 		return positions.some((pos) => {
@@ -102,18 +135,18 @@ class Game extends Component {
 			) {
 				// Outof Bounds
 				return true;
-			} else if (board[pos.y][pos.x].value) {
+			} else if (board[pos.y][pos.x]) {
 				//Collision on the Board
 				return true;
 			}
 		});
 	};
 
-	moveTetromino() {}
-
 	handleKeyPress = (e) => {
 		let keyCode = e.code;
 		let copyTetromino = JSON.parse(JSON.stringify(this.state.tetromino));
+
+		let downFlag = false;
 
 		switch (keyCode) {
 			case "ArrowLeft":
@@ -138,30 +171,38 @@ class Game extends Component {
 				break;
 			case "ArrowDown":
 				copyTetromino.origin.y--;
+				downFlag = true;
+
 				break;
 			default:
 				break;
 		}
-		console.log(this.checkCollision(copyTetromino));
 		if (!this.checkCollision(copyTetromino)) {
 			this.setState({
 				tetromino: copyTetromino,
+				lastDrop: downFlag ? Date.now() : this.state.lastDrop,
 			});
 		}
 	};
 
 	render() {
 		return (
-			<Animation
-				nextGameStep={this.nextGameStep}
-				board={this.state.board}
-				tetromino={this.state.tetromino}
-				handleKeyPress={this.handleKeyPress}
-			>
-				<aside>
-					<p>this.state.que.value</p>
-				</aside>
-			</Animation>
+			<Fragment>
+				<Animation
+					nextGameStep={this.nextGameStep}
+					board={this.state.board}
+					tetromino={this.state.tetromino}
+					handleKeyPress={this.handleKeyPress}
+				>
+					<aside>
+						asldjfl;asdjfl;ajsd;lf jl;asjdf;lajs;dlfjdjkkkkkkkdkdkskasldflasdlf{" "}
+					</aside>
+				</Animation>
+				<div> {this.state.que[0] && this.state.que[0].value}</div>
+				<div> {this.state.score}</div>
+				<div> {this.state.linesCleared}</div>
+				<div> {~~(this.state.linesCleared / 10)}</div>
+			</Fragment>
 		);
 	}
 }
