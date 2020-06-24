@@ -1,0 +1,40 @@
+.grid-container {
+	display: grid;
+	grid-template-columns: 500px 100px;
+	grid-template-rows: auto auto auto auto;
+	padding: 30px;
+	/* grid-template-areas:
+	"score score"
+	"c c sidebar"
+	"footer footer footer"; */
+}
+
+.grid-item {
+	text-align: center;
+}
+
+.score {
+	grid-area: 1/1/1/3;
+	background-color: lightcoral;
+}
+
+/* .canvas {
+	grid-area: 2/1/5/1;
+	background-color: lightsalmon;
+	height: 500px;
+} */
+
+.next-piece {
+	grid-area: 2/2/2/2;
+	background-color: lightpink;
+}
+
+.lines-cleared {
+	grid-area: 3/2/3/2;
+	background-color: lightgreen;
+}
+
+.level {
+	grid-area: 4/2/4/2;
+	background-color: lightblue;
+}

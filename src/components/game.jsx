@@ -1,13 +1,13 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import { Animation } from "./animation.jsx";
 import * as CONST from "../constants/constants.js";
+import "./game.css";
+import "./canvas.css";
 //import { tetromino } from "./tetromino.jsx";
 //const tetromino = require("./tetromino.jsx");
 
 class Game extends Component {
-	constructor(props) {
-		super(props);
-
+	initialState = () => {
 		let board = [...Array(CONST.HEIGHT)].map(() => Array(CONST.WIDTH));
 		for (let j = 0; j < CONST.HEIGHT; j++) {
 			for (let i = 0; i < CONST.WIDTH; i++) {
@@ -15,16 +15,33 @@ class Game extends Component {
 			}
 		}
 
-		this.state = {
+		return {
 			board: board,
 			tetromino: this.createTetromino(),
-			dropTime: CONST.LEVEL_SPEEDS.speeds[0],
-			lastDrop: Date.now(),
 			que: [this.createTetromino()],
-			hold: {},
 			score: 0,
 			linesCleared: 0,
 		};
+	};
+
+	constructor(props) {
+		super(props);
+		this.state = this.initialState();
+		this.lastDropTime = Date.now();
+		this.accumTime = 0;
+		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
+	}
+
+	componentDidMount = () => {
+		this.timeOut = setTimeout(this.nextDrop, this.dropTime);
+	};
+
+	reset() {
+		this.setState(this.initialState());
+		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
+		this.lastDropTime = Date.now();
+		this.accumTime = 0;
+		this.resetTimeout();
 	}
 
 	createTetromino = () => {
@@ -45,7 +62,6 @@ class Game extends Component {
 	lockTetromino = () => {
 		const pos = this.findPos(this.state.tetromino);
 		let board = JSON.parse(JSON.stringify(this.state.board));
-
 		pos.forEach((pos) => {
 			board[pos.y][pos.x] = this.state.tetromino.value;
 		});
@@ -61,7 +77,6 @@ class Game extends Component {
 		const clearRows = potentialRows.filter((rowNum) => {
 			return !this.state.board[rowNum].includes(0);
 		});
-		//console.log(clearRows);
 
 		if (clearRows.length) {
 			let boardCopy = [...this.state.board];
@@ -71,39 +86,60 @@ class Game extends Component {
 				boardCopy.push(new Array(CONST.WIDTH).fill(0));
 			}
 
-			console.log(clearRows.length);
+			const linesMultiplier = [40, 100, 300, 1200][clearRows.length - 1];
+			const points = linesMultiplier * (~~(this.state.linesCleared / 10) + 1);
 
-			this.setState({
+			this.setState((state) => ({
 				board: boardCopy,
-				linesCleared: this.state.linesCleared + clearRows.length,
-			});
+				linesCleared: state.linesCleared + clearRows.length,
+				score: state.score + points,
+			}));
 		}
 	};
 
-	nextGameStep = () => {
-		if (Date.now() - this.state.lastDrop > this.state.dropTime) {
-			let copyTetromino = JSON.parse(JSON.stringify(this.state.tetromino));
-			copyTetromino.origin.y--;
-			if (this.checkCollision(copyTetromino)) {
-				this.lockTetromino();
-				this.clearLines();
-				const levelIndex = CONST.LEVEL_SPEEDS.levels.findIndex(
-					(element) => element >= ~~(this.linesCleard / 10)
-				);
-				const speed = CONST.LEVEL_SPEEDS.speeds[levelIndex];
-				this.setState({
-					lastDrop: Date.now(),
-					tetromino: this.state.que.pop(),
-					que: [this.createTetromino(), ...this.state.que],
-					dropTime: speed,
-				});
-			} else {
-				this.setState({
-					lastDrop: Date.now(),
-					tetromino: copyTetromino,
-				});
-			}
+	spawnTetromino(tetromino) {
+		if (this.checkCollision(tetromino)) {
+			tetromino.origin.y++;
 		}
+		return tetromino;
+	}
+
+	tetrominoBottomedOut = () => {
+		this.lockTetromino();
+		this.clearLines();
+		const levelIndex = CONST.LEVEL_SPEEDS.levels.findIndex(
+			(element) => element >= Math.min(~~(this.state.linesCleared / 10), 29)
+		);
+		const speed = CONST.LEVEL_SPEEDS.speeds[levelIndex];
+		let copyQueTetromino = JSON.parse(JSON.stringify(this.state.que[0]));
+		const spawnedTetromino = this.spawnTetromino(copyQueTetromino);
+		if (this.checkCollision(spawnedTetromino)) {
+			console.log("GAME OVER");
+			this.reset();
+		} else {
+			this.dropTime = speed;
+			this.setState((state) => ({
+				tetromino: spawnedTetromino,
+				que: [this.createTetromino()],
+			}));
+		}
+	};
+
+	nextDrop = () => {
+		this.accumTime += Date.now() - this.lastDropTime;
+
+		this.lastDropTime = Date.now();
+		let copyTetromino = JSON.parse(JSON.stringify(this.state.tetromino));
+		copyTetromino.origin.y--;
+		if (this.checkCollision(copyTetromino)) {
+			this.tetrominoBottomedOut();
+		} else {
+			this.setState({
+				tetromino: copyTetromino,
+			});
+		}
+
+		this.resetTimeout();
 	};
 
 	findPos(tetromino) {
@@ -139,7 +175,13 @@ class Game extends Component {
 				//Collision on the Board
 				return true;
 			}
+			return false;
 		});
+	};
+
+	resetTimeout = () => {
+		clearTimeout(this.timeOut);
+		this.timeOut = setTimeout(this.nextDrop, this.dropTime);
 	};
 
 	handleKeyPress = (e) => {
@@ -172,37 +214,46 @@ class Game extends Component {
 			case "ArrowDown":
 				copyTetromino.origin.y--;
 				downFlag = true;
-
 				break;
 			default:
 				break;
 		}
-		if (!this.checkCollision(copyTetromino)) {
-			this.setState({
+
+		if (downFlag) {
+			//Reset the drop timer if the user dropped early and give bonus
+			this.resetTimeout();
+			this.setState((state) => ({
+				score: state.score + 1,
+			}));
+		}
+		if (this.checkCollision(copyTetromino)) {
+			// User Soft dropped to bottom
+			this.tetrominoBottomedOut();
+		} else {
+			// No collision Update move state
+			this.setState((state) => ({
 				tetromino: copyTetromino,
-				lastDrop: downFlag ? Date.now() : this.state.lastDrop,
-			});
+			}));
 		}
 	};
 
 	render() {
 		return (
-			<Fragment>
+			<div className="grid-container">
 				<Animation
-					nextGameStep={this.nextGameStep}
+					className="canvas"
 					board={this.state.board}
 					tetromino={this.state.tetromino}
 					handleKeyPress={this.handleKeyPress}
-				>
-					<aside>
-						asldjfl;asdjfl;ajsd;lf jl;asjdf;lajs;dlfjdjkkkkkkkdkdkskasldflasdlf{" "}
-					</aside>
-				</Animation>
-				<div> {this.state.que[0] && this.state.que[0].value}</div>
-				<div> {this.state.score}</div>
-				<div> {this.state.linesCleared}</div>
-				<div> {~~(this.state.linesCleared / 10)}</div>
-			</Fragment>
+				/>
+				<div className="score"> {this.state.score}</div>
+				{/* <div className="canvas">Test</div> */}
+				<div className="next-piece">
+					{this.state.que[0] && this.state.que[0].value}
+				</div>
+				<div className="lines-cleared">{this.state.linesCleared}</div>
+				<div className="level">{~~(this.state.linesCleared / 10)}</div>
+			</div>
 		);
 	}
 }

@@ -1,5 +1,6 @@
 import React, { Component, createRef } from "react";
 import * as CONST from "../constants/constants.js";
+import "./canvas.css";
 
 class Canvas extends Component {
 	constructor(props) {
@@ -8,7 +9,6 @@ class Canvas extends Component {
 	}
 
 	componentDidMount = () => {
-		this.forceUpdate();
 		document.addEventListener("keydown", this.props.handleKeyPress);
 	};
 
@@ -49,7 +49,7 @@ class Canvas extends Component {
 			ctx.scale(1 * CONST.SCALE, -1 * CONST.SCALE);
 			ctx.translate(0, -CONST.HEIGHT_VIS);
 			ctx.translate(pos.x + offset.x, pos.y + offset.y);
-			const decSaturation = isLocked ? -20 : 0;
+			const decSaturation = isLocked ? -25 : 0;
 			switch (value) {
 				case "I":
 					ctx.fillStyle = "hsl(192.7, " + (73.8 + decSaturation) + "%, 68.7%)";
@@ -90,18 +90,9 @@ class Canvas extends Component {
 			<div>
 				<canvas
 					ref={this.canvasRef}
-					style={{
-						border: "1px solid #000",
-						marginTop: 10,
-						marginLeft: 10,
-					}}
 					width={CONST.WIDTH * CONST.SCALE}
 					height={CONST.HEIGHT_VIS * CONST.SCALE}
-				>
-					<p>
-						asldjfl;asdjfl;ajsd;lf jl;asjdf;lajs;dlfjdjkkkkkkkdkdkskasldflasdlf{" "}
-					</p>
-				</canvas>
+				/>
 			</div>
 		);
 	}
@@ -112,28 +103,25 @@ export default Canvas;
 export class Animation extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			accumTime: 0,
-			lastUpdate: Date.now(),
-		};
+		this.AnimationFlag = false;
+		this.lastUpdate = Date.now();
 	}
+
 	componentDidMount = () => {
 		this.rAF = requestAnimationFrame(this.updateAnimationState);
 	};
 
+	shouldComponentUpdate = () => {
+		return this.AnimationFlag;
+	};
+
+	componentDidUpdate = () => {
+		this.AnimationFlag = false;
+	};
+
 	updateAnimationState = () => {
 		this.rAF = requestAnimationFrame(this.updateAnimationState);
-		this.setState({
-			accumTime: Date.now() - this.state.lastUpdate,
-		});
-
-		while (this.state.accumTime >= CONST.GAME_INTERVAL) {
-			this.setState({
-				lastUpdate: Date.now(),
-				accumTime: this.state.accumTime - CONST.GAME_INTERVAL,
-			});
-			this.props.nextGameStep();
-		}
+		this.AnimationFlag = true;
 	};
 
 	componentWillUnmount = () => {
