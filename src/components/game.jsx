@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { Animation } from "./animation.jsx";
+import React, { Component, createRef } from "react";
+import { Animation, drawCell } from "./animation.jsx";
 import * as CONST from "../constants/constants.js";
 import "./game.css";
 import "./canvas.css";
@@ -27,20 +27,19 @@ class Game extends Component {
 	constructor(props) {
 		super(props);
 		this.state = this.initialState();
-		this.lastDropTime = Date.now();
-		this.accumTime = 0;
 		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
+		this.canvasRef = createRef();
 	}
 
 	componentDidMount = () => {
 		this.timeOut = setTimeout(this.nextDrop, this.dropTime);
+		this.canvas = this.canvasRef.current;
+		this.ctx = this.canvas.getContext("2d");
 	};
 
 	reset() {
 		this.setState(this.initialState());
 		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
-		this.lastDropTime = Date.now();
-		this.accumTime = 0;
 		this.resetTimeout();
 	}
 
@@ -126,9 +125,6 @@ class Game extends Component {
 	};
 
 	nextDrop = () => {
-		this.accumTime += Date.now() - this.lastDropTime;
-
-		this.lastDropTime = Date.now();
 		let copyTetromino = JSON.parse(JSON.stringify(this.state.tetromino));
 		copyTetromino.origin.y--;
 		if (this.checkCollision(copyTetromino)) {
@@ -219,43 +215,85 @@ class Game extends Component {
 				break;
 		}
 
+		let score = this.state.score;
+
 		if (downFlag) {
 			//Reset the drop timer if the user dropped early and give bonus
 			this.resetTimeout();
-			this.setState((state) => ({
-				score: state.score + 1,
-			}));
+			score++;
 		}
 		if (this.checkCollision(copyTetromino)) {
-			// User Soft dropped to bottom
-			this.tetrominoBottomedOut();
+			if (downFlag) {
+				// User Soft dropped to bottom
+				this.tetrominoBottomedOut();
+			}
 		} else {
 			// No collision Update move state
 			this.setState((state) => ({
 				tetromino: copyTetromino,
+				score: score,
 			}));
 		}
 	};
 
-	render() {
+	componentDidUpdate = () => {
+		//Draw Next Tetromino
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		let tetromino = JSON.parse(JSON.stringify(this.state.que[0]));
+		tetromino.origin = { x: 2, y: 3 };
+
+		// this.ctx.width = tetromino.cells[0].length;
+		// this.ctx.hieght = tetromino.cells.length;
+
+		for (let j = 0; j < tetromino.cells.length; j++) {
+			for (let i = 0; i < tetromino.cells[0].length; i++) {
+				if (tetromino.cells[j][i]) {
+					drawCell(
+						this.ctx,
+						{ x: i, y: j },
+						tetromino.origin,
+						tetromino.value,
+						false
+					);
+				}
+			}
+		}
+
+		this.ctx.save();
+		this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+		this.ctx.lineWidth = 10;
+		this.ctx.stroke();
+		this.ctx.restore();
+	};
+
+	render = () => {
 		return (
 			<div className="grid-container">
+				<div className="score"> Score: {this.state.score}</div>
 				<Animation
-					className="canvas"
 					board={this.state.board}
 					tetromino={this.state.tetromino}
 					handleKeyPress={this.handleKeyPress}
 				/>
-				<div className="score"> {this.state.score}</div>
-				{/* <div className="canvas">Test</div> */}
+
+				{/* <div className="next-piece">Next:{this.state.que[0] && drawCell()}</div> */}
 				<div className="next-piece">
-					{this.state.que[0] && this.state.que[0].value}
+					Next:
+					<canvas
+						ref={this.canvasRef}
+						width={400}
+						height={800}
+						style={{ border: 1 }}
+					/>
 				</div>
-				<div className="lines-cleared">{this.state.linesCleared}</div>
-				<div className="level">{~~(this.state.linesCleared / 10)}</div>
+				<div className="lines-cleared">
+					{" "}
+					Lines Cleared: {this.state.linesCleared}
+				</div>
+				<div className="level"> Level: {~~(this.state.linesCleared / 10)}</div>
 			</div>
 		);
-	}
+	};
 }
 
 export default Game;

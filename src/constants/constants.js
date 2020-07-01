@@ -237,4 +237,4 @@ export const LEVEL_SPEEDS = {
 	],
 };
 
-export const SCALE = 40;
+export const SCALE = 30;
