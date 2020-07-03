@@ -32,7 +32,7 @@ export const I_ORIENT = [
 
 export const I = {
 	value: "I",
-	origin: { x: 3, y: 17 },
+	origin: { x: 3, y: 18 },
 	orient: 0,
 	cells: I_ORIENT[0],
 };
@@ -62,7 +62,7 @@ export const T_ORIENT = [
 
 export const T = {
 	value: "T",
-	origin: { x: 3, y: 18 },
+	origin: { x: 3, y: 19 },
 	orient: 0,
 	cells: T_ORIENT[0],
 };
@@ -95,7 +95,7 @@ export const S_ORIENT = [
 
 export const S = {
 	value: "S",
-	origin: { x: 3, y: 18 },
+	origin: { x: 3, y: 19 },
 	orient: 0,
 	cells: S_ORIENT[0],
 };
@@ -125,7 +125,7 @@ export const Z_ORIENT = [
 
 export const Z = {
 	value: "Z",
-	origin: { x: 3, y: 18 },
+	origin: { x: 3, y: 19 },
 	orient: 0,
 	cells: Z_ORIENT[0],
 };
@@ -151,7 +151,7 @@ export const O_ORIENT = [
 
 export const O = {
 	value: "O",
-	origin: { x: 4, y: 18 },
+	origin: { x: 4, y: 20 },
 	orient: 0,
 	cells: O_ORIENT[0],
 };
@@ -181,7 +181,7 @@ export const J_ORIENT = [
 
 export const J = {
 	value: "J",
-	origin: { x: 4, y: 18 },
+	origin: { x: 4, y: 19 },
 	orient: 0,
 	cells: J_ORIENT[0],
 };
@@ -211,7 +211,7 @@ export const L_ORIENT = [
 
 export const L = {
 	value: "L",
-	origin: { x: 4, y: 18 },
+	origin: { x: 4, y: 19 },
 	orient: 0,
 	cells: L_ORIENT[0],
 };
@@ -237,4 +237,4 @@ export const LEVEL_SPEEDS = {
 	],
 };
 
-export const SCALE = 30;
+export const SCALE = 40;

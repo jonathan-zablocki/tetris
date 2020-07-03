@@ -99,14 +99,20 @@ export function drawCell(
 	pos,
 	offset = { x: 0, y: 0 },
 	value = null,
-	isLocked = true
+	isLocked = true,
+	scale = CONST.SCALE,
+	isNextPeice = false
 ) {
 	ctx.save();
-	ctx.beginPath();
-	ctx.scale(1 * CONST.SCALE, -1 * CONST.SCALE);
-	ctx.translate(0, -CONST.HEIGHT_VIS);
+	ctx.scale(1 * scale, -1 * scale);
+	if (!isNextPeice) {
+		ctx.translate(0, -CONST.HEIGHT_VIS);
+	}
 	ctx.translate(pos.x + offset.x, pos.y + offset.y);
+
+	// Lower Saturation on tetromino after they are placed
 	const decSaturation = isLocked ? -25 : 0;
+
 	switch (value) {
 		case "I":
 			ctx.fillStyle = "hsl(192.7, " + (73.8 + decSaturation) + "%, 68.7%)";
@@ -134,8 +140,7 @@ export function drawCell(
 			break;
 	}
 	ctx.fillRect(0, 0, 1, 1);
-	ctx.lineWidth = ~~(1 / CONST.SCALE);
-	ctx.beginPath();
+	ctx.lineWidth = ~~(1 / scale);
 	ctx.rect(0, 0, 1, 1);
 	ctx.restore();
 	ctx.stroke();

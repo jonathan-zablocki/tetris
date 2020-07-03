@@ -1,8 +1,9 @@
-import React, { Component, createRef } from "react";
+import React, { Component, createRef, Fragment } from "react";
 import { Animation, drawCell } from "./animation.jsx";
 import * as CONST from "../constants/constants.js";
 import "./game.css";
 import "./canvas.css";
+import Display from "./display.jsx";
 //import { tetromino } from "./tetromino.jsx";
 //const tetromino = require("./tetromino.jsx");
 
@@ -29,18 +30,22 @@ class Game extends Component {
 		this.state = this.initialState();
 		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
 		this.canvasRef = createRef();
+		this.isNewGame = true;
 	}
 
 	componentDidMount = () => {
 		this.timeOut = setTimeout(this.nextDrop, this.dropTime);
 		this.canvas = this.canvasRef.current;
 		this.ctx = this.canvas.getContext("2d");
+		this.drawNextPiece();
 	};
 
 	reset() {
 		this.setState(this.initialState());
 		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
+		this.drawNextPiece();
 		this.resetTimeout();
+		this.isNewGame = false;
 	}
 
 	createTetromino = () => {
@@ -121,6 +126,7 @@ class Game extends Component {
 				tetromino: spawnedTetromino,
 				que: [this.createTetromino()],
 			}));
+			this.drawNextPiece();
 		}
 	};
 
@@ -236,64 +242,109 @@ class Game extends Component {
 		}
 	};
 
-	componentDidUpdate = () => {
-		//Draw Next Tetromino
+	handleStartGame = () => {
+		console.log("hello");
+	};
+
+	drawNextPiece = () => {
+		//Draw Tetromino in que
+
+		this.ctx.beginPath();
 		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		let tetromino = JSON.parse(JSON.stringify(this.state.que[0]));
-		tetromino.origin = { x: 2, y: 3 };
+		this.ctx.save();
 
-		// this.ctx.width = tetromino.cells[0].length;
-		// this.ctx.hieght = tetromino.cells.length;
+		this.ctx.translate(-0.5 * CONST.SCALE, 2.5 * CONST.SCALE);
 
+		const tetromino = this.state.que[0];
 		for (let j = 0; j < tetromino.cells.length; j++) {
 			for (let i = 0; i < tetromino.cells[0].length; i++) {
 				if (tetromino.cells[j][i]) {
 					drawCell(
 						this.ctx,
 						{ x: i, y: j },
-						tetromino.origin,
+						// { x: 0, y: 0 },
+						offsetVisualCenter(tetromino.value),
 						tetromino.value,
-						false
+						false,
+						CONST.SCALE,
+						true
 					);
 				}
 			}
 		}
 
-		this.ctx.save();
-		this.ctx.rect(0, 0, this.canvas.width, this.canvas.height);
-		this.ctx.lineWidth = 10;
-		this.ctx.stroke();
 		this.ctx.restore();
 	};
 
 	render = () => {
 		return (
-			<div className="grid-container">
-				<div className="score"> Score: {this.state.score}</div>
-				<Animation
-					board={this.state.board}
-					tetromino={this.state.tetromino}
-					handleKeyPress={this.handleKeyPress}
+			<Fragment>
+				<Display
+					handleStartGame={this.handleStartGame}
+					isNewGame={this.isNewGame}
 				/>
-
-				{/* <div className="next-piece">Next:{this.state.que[0] && drawCell()}</div> */}
-				<div className="next-piece">
-					Next:
-					<canvas
-						ref={this.canvasRef}
-						width={400}
-						height={800}
-						style={{ border: 1 }}
+				<div className="grid-container">
+					<div className="score">
+						{" "}
+						Score: <span className="value-text"> {this.state.score}</span>
+					</div>
+					<Animation
+						board={this.state.board}
+						tetromino={this.state.tetromino}
+						handleKeyPress={this.handleKeyPress}
 					/>
+
+					{/* <div className="next-piece">Next:{this.state.que[0] && drawCell()}</div> */}
+					<div className="flex-container">
+						<div className="next-piece">
+							Next
+							<div className="next-piece-wrapper">
+								<canvas
+									className="next-piece-canvas border-box"
+									ref={this.canvasRef}
+									width={5 * CONST.SCALE}
+									height={4 * CONST.SCALE}
+								/>
+							</div>
+						</div>
+						<div className="level">
+							Level
+							<div className="value-text">
+								{~~(this.state.linesCleared / 10)}
+							</div>
+						</div>
+						<div className="lines-cleared">
+							Lines
+							<div className="value-text">{this.state.linesCleared}</div>
+						</div>
+					</div>
 				</div>
-				<div className="lines-cleared">
-					{" "}
-					Lines Cleared: {this.state.linesCleared}
-				</div>
-				<div className="level"> Level: {~~(this.state.linesCleared / 10)}</div>
-			</div>
+			</Fragment>
 		);
 	};
 }
 
 export default Game;
+
+const offsetVisualCenter = (value) => {
+	let offset;
+	switch (value) {
+		case "I":
+			offset = { x: 1, y: -2.5 };
+			break;
+		case "O":
+			offset = { x: 2, y: -1 };
+			break;
+		case "J":
+		case "L":
+		case "S":
+		case "Z":
+		case "T":
+			offset = { x: 1.5, y: -2 };
+			break;
+		default:
+			offset = { x: 0, y: 0 };
+			break;
+	}
+	return offset;
+};
