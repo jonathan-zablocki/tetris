@@ -1,7 +1,13 @@
 body {
 	font-family: Pixel, Arial, Helvetica, sans-serif;
 	color: rgb(50, 50, 50);
-	font-size: 30px;
+	font-size: 2.2rem;
+}
+
+@media only screen and (max-width: 375px) {
+	body {
+		font-size: 1.5rem;
+	}
 }
 
 body::before {
@@ -15,6 +21,7 @@ body::before {
 	left: 0px;
 	opacity: 0.5;
 	transform: scaleX(-1);
+	z-index: -1;
 }
 
 .grid-container {
@@ -43,6 +50,7 @@ body::before {
 	display: flex;
 	flex-direction: column;
 	flex-wrap: nowrap;
+	/* visibility: hidden; */
 }
 .flex-container * {
 	max-width: 100%;

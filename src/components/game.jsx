@@ -31,13 +31,17 @@ class Game extends Component {
 		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
 		this.canvasRef = createRef();
 		this.isNewGame = true;
+		this.isDisplay = true;
 	}
 
 	componentDidMount = () => {
-		this.timeOut = setTimeout(this.nextDrop, this.dropTime);
 		this.canvas = this.canvasRef.current;
 		this.ctx = this.canvas.getContext("2d");
-		this.drawNextPiece();
+	};
+
+	gameOver = () => {
+		this.isDisplay = true;
+		clearTimeout(this.timeOut);
 	};
 
 	reset() {
@@ -46,6 +50,7 @@ class Game extends Component {
 		this.drawNextPiece();
 		this.resetTimeout();
 		this.isNewGame = false;
+		this.isDisplay = false;
 	}
 
 	createTetromino = () => {
@@ -118,8 +123,7 @@ class Game extends Component {
 		let copyQueTetromino = JSON.parse(JSON.stringify(this.state.que[0]));
 		const spawnedTetromino = this.spawnTetromino(copyQueTetromino);
 		if (this.checkCollision(spawnedTetromino)) {
-			console.log("GAME OVER");
-			this.reset();
+			this.gameOver();
 		} else {
 			this.dropTime = speed;
 			this.setState((state) => ({
@@ -243,7 +247,7 @@ class Game extends Component {
 	};
 
 	handleStartGame = () => {
-		console.log("hello");
+		this.reset();
 	};
 
 	drawNextPiece = () => {
@@ -278,48 +282,47 @@ class Game extends Component {
 
 	render = () => {
 		return (
-			<Fragment>
-				<Display
-					handleStartGame={this.handleStartGame}
-					isNewGame={this.isNewGame}
+			<div className="grid-container">
+				<div className="score">
+					{" "}
+					Score: <span className="value-text"> {this.state.score}</span>
+				</div>
+				<Animation
+					board={this.state.board}
+					tetromino={this.state.tetromino}
+					handleKeyPress={this.handleKeyPress}
 				/>
-				<div className="grid-container">
-					<div className="score">
-						{" "}
-						Score: <span className="value-text"> {this.state.score}</span>
-					</div>
-					<Animation
-						board={this.state.board}
-						tetromino={this.state.tetromino}
-						handleKeyPress={this.handleKeyPress}
-					/>
 
-					{/* <div className="next-piece">Next:{this.state.que[0] && drawCell()}</div> */}
-					<div className="flex-container">
-						<div className="next-piece">
-							Next
-							<div className="next-piece-wrapper">
-								<canvas
-									className="next-piece-canvas border-box"
-									ref={this.canvasRef}
-									width={5 * CONST.SCALE}
-									height={4 * CONST.SCALE}
-								/>
-							</div>
+				{this.isDisplay && (
+					<Display
+						handleStartGame={this.handleStartGame}
+						isNewGame={this.isNewGame}
+					/>
+				)}
+
+				{/* <div className="next-piece">Next:{this.state.que[0] && drawCell()}</div> */}
+				<div className="flex-container">
+					<div className="next-piece">
+						Next
+						<div className="next-piece-wrapper">
+							<canvas
+								className="next-piece-canvas border-box"
+								ref={this.canvasRef}
+								width={5 * CONST.SCALE}
+								height={4 * CONST.SCALE}
+							/>
 						</div>
-						<div className="level">
-							Level
-							<div className="value-text">
-								{~~(this.state.linesCleared / 10)}
-							</div>
-						</div>
-						<div className="lines-cleared">
-							Lines
-							<div className="value-text">{this.state.linesCleared}</div>
-						</div>
+					</div>
+					<div className="level">
+						Level
+						<div className="value-text">{~~(this.state.linesCleared / 10)}</div>
+					</div>
+					<div className="lines-cleared">
+						Lines
+						<div className="value-text">{this.state.linesCleared}</div>
 					</div>
 				</div>
-			</Fragment>
+			</div>
 		);
 	};
 }

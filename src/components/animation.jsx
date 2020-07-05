@@ -10,6 +10,7 @@ class Canvas extends Component {
 
 	componentDidMount = () => {
 		document.addEventListener("keydown", this.props.handleKeyPress);
+		this.drawBoard();
 	};
 
 	componentWillUnmount = () => {
@@ -17,17 +18,14 @@ class Canvas extends Component {
 	};
 
 	componentDidUpdate = () => {
+		this.drawBoard();
+	};
+
+	drawBoard = () => {
 		const canvas = this.canvasRef.current;
 		const ctx = canvas.getContext("2d");
 		const board = this.props.board;
 		const tetromino = this.props.tetromino;
-
-		console.log(canvas.clientWidth);
-		console.log(canvas.clientHeight);
-
-		console.log(canvas.width);
-		console.log(canvas.height);
-
 		canvas.width = 10 * CONST.SCALE;
 		canvas.height = 20 * CONST.SCALE;
 
@@ -55,7 +53,7 @@ class Canvas extends Component {
 	};
 
 	render() {
-		return <canvas className="canvas" ref={this.canvasRef} />;
+		return <canvas ref={this.canvasRef} />;
 	}
 }
 
