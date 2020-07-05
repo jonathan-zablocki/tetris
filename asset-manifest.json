@@ -1,0 +1,24 @@
+{
+  "files": {
+    "main.css": "/tetris/static/css/main.8a702a67.chunk.css",
+    "main.js": "/tetris/static/js/main.c9d55f22.chunk.js",
+    "main.js.map": "/tetris/static/js/main.c9d55f22.chunk.js.map",
+    "runtime-main.js": "/tetris/static/js/runtime-main.401af29c.js",
+    "runtime-main.js.map": "/tetris/static/js/runtime-main.401af29c.js.map",
+    "static/js/2.aa48af83.chunk.js": "/tetris/static/js/2.aa48af83.chunk.js",
+    "static/js/2.aa48af83.chunk.js.map": "/tetris/static/js/2.aa48af83.chunk.js.map",
+    "index.html": "/tetris/index.html",
+    "precache-manifest.d8a0868616908eced441e13bfc85c74b.js": "/tetris/precache-manifest.d8a0868616908eced441e13bfc85c74b.js",
+    "service-worker.js": "/tetris/service-worker.js",
+    "static/css/main.8a702a67.chunk.css.map": "/tetris/static/css/main.8a702a67.chunk.css.map",
+    "static/js/2.aa48af83.chunk.js.LICENSE.txt": "/tetris/static/js/2.aa48af83.chunk.js.LICENSE.txt",
+    "static/media/index.css": "/tetris/static/media/Azonix-1VB0.3b372e98.otf",
+    "static/media/game.css": "/tetris/static/media/background.634fb91b.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.401af29c.js",
+    "static/js/2.aa48af83.chunk.js",
+    "static/css/main.8a702a67.chunk.css",
+    "static/js/main.c9d55f22.chunk.js"
+  ]
+}
