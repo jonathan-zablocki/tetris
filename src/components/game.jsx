@@ -1,11 +1,9 @@
-import React, { Component, createRef, Fragment } from "react";
+import React, { Component, createRef } from "react";
 import { Animation, drawCell } from "./animation.jsx";
 import * as CONST from "../constants/constants.js";
 import "./game.css";
 import "./canvas.css";
 import Display from "./display.jsx";
-//import { tetromino } from "./tetromino.jsx";
-//const tetromino = require("./tetromino.jsx");
 
 class Game extends Component {
 	initialState = () => {
@@ -28,10 +26,9 @@ class Game extends Component {
 	constructor(props) {
 		super(props);
 		this.state = this.initialState();
-		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
+		this.state["isDisplay"] = true;
 		this.canvasRef = createRef();
 		this.isNewGame = true;
-		this.isDisplay = true;
 	}
 
 	componentDidMount = () => {
@@ -40,17 +37,18 @@ class Game extends Component {
 	};
 
 	gameOver = () => {
-		this.isDisplay = true;
+		this.setState({ isDisplay: true });
 		clearTimeout(this.timeOut);
 	};
 
 	reset() {
-		this.setState(this.initialState());
+		this.setState(this.initialState(), () => {
+			this.drawNextPiece();
+		});
 		this.dropTime = CONST.LEVEL_SPEEDS.speeds[0];
-		this.drawNextPiece();
 		this.resetTimeout();
 		this.isNewGame = false;
-		this.isDisplay = false;
+		this.setState({ isDisplay: false });
 	}
 
 	createTetromino = () => {
@@ -144,8 +142,9 @@ class Game extends Component {
 				tetromino: copyTetromino,
 			});
 		}
-
-		this.resetTimeout();
+		if (!this.state.isDisplay) {
+			this.resetTimeout();
+		}
 	};
 
 	findPos(tetromino) {
@@ -191,6 +190,10 @@ class Game extends Component {
 	};
 
 	handleKeyPress = (e) => {
+		if (this.state.isDisplay) {
+			this.forceUpdate();
+			return;
+		}
 		let keyCode = e.code;
 		let copyTetromino = JSON.parse(JSON.stringify(this.state.tetromino));
 
@@ -293,14 +296,13 @@ class Game extends Component {
 					handleKeyPress={this.handleKeyPress}
 				/>
 
-				{this.isDisplay && (
+				{this.state.isDisplay && (
 					<Display
 						handleStartGame={this.handleStartGame}
 						isNewGame={this.isNewGame}
 					/>
 				)}
 
-				{/* <div className="next-piece">Next:{this.state.que[0] && drawCell()}</div> */}
 				<div className="flex-container">
 					<div className="next-piece">
 						Next
