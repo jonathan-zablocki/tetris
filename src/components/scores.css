@@ -48,6 +48,7 @@
 
 table {
 	overflow-y: auto;
+	width: 100%;
 }
 
 .scroll {
