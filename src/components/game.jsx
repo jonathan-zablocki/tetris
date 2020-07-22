@@ -4,6 +4,7 @@ import * as CONST from "../constants/constants.js";
 import "./game.css";
 import "./canvas.css";
 import Display from "./display.jsx";
+import Scores from "./scores.jsx";
 
 class Game extends Component {
 	initialState = () => {
@@ -26,7 +27,8 @@ class Game extends Component {
 	constructor(props) {
 		super(props);
 		this.state = this.initialState();
-		this.state["isDisplay"] = true;
+		this.state.isDisplay = true;
+		this.state.isScores = false;
 		this.canvasRef = createRef();
 		this.isNewGame = true;
 	}
@@ -39,6 +41,19 @@ class Game extends Component {
 	gameOver = () => {
 		this.setState({ isDisplay: true });
 		clearTimeout(this.timeOut);
+		this.submitScore();
+	};
+
+	submitScore = () => {
+		const scoreObj = (({ score }) => ({ score }))(this.state);
+
+		fetch("https://tetris-backend-server.herokuapp.com/scores", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json",
+			},
+			body: JSON.stringify(scoreObj), // body data type must match "Content-Type" header
+		});
 	};
 
 	reset() {
@@ -253,6 +268,20 @@ class Game extends Component {
 		this.reset();
 	};
 
+	handleOpenScores = () => {
+		this.setState({
+			isDisplay: false,
+			isScores: true,
+		});
+	};
+
+	handleCloseScores = () => {
+		this.setState({
+			isDisplay: true,
+			isScores: false,
+		});
+	};
+
 	drawNextPiece = () => {
 		//Draw Tetromino in que
 
@@ -299,8 +328,13 @@ class Game extends Component {
 				{this.state.isDisplay && (
 					<Display
 						handleStartGame={this.handleStartGame}
+						handleOpenScores={this.handleOpenScores}
 						isNewGame={this.isNewGame}
 					/>
+				)}
+
+				{this.state.isScores && (
+					<Scores handleCloseScores={this.handleCloseScores} />
 				)}
 
 				<div className="flex-container">

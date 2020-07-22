@@ -7,6 +7,9 @@ const Display = (props) => (
 		<button className="startButton" onClick={props.handleStartGame}>
 			{">"}
 		</button>
+		<button className="trophy" onClick={props.handleOpenScores}>
+			<i className="fa fa-trophy" aria-hidden="true"></i>
+		</button>
 	</div>
 );
 

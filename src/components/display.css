@@ -3,10 +3,7 @@
 	flex-direction: column;
 	padding: 20px;
 	font-size: 3rem;
-
 	grid-area: 2/1/3/1;
-	/* height: auto;
-	width: auto; */
 	max-height: 100%;
 	max-width: 100%;
 	position: relative;
@@ -24,17 +21,24 @@
 }
 
 .startButton {
-	align-self: center;
 	line-height: 120px;
 	height: 120px;
 	font-size: 10rem;
 	font-weight: bolder;
 	color: hsl(197.9, 55.8%, 47.1%);
-	background-color: inherit;
 	outline: none;
-	/* flex-shrink: 1; */
 }
 
 .startButton:hover {
+	opacity: 0.5;
+}
+
+.trophy {
+	margin-top: 10px;
+	font-size: 5rem;
+	color: hsl(197.9, 55.8%, 47.1%);
+}
+
+.trophy:hover {
 	opacity: 0.5;
 }
