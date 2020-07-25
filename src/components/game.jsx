@@ -36,6 +36,8 @@ class Game extends Component {
 	componentDidMount = () => {
 		this.canvas = this.canvasRef.current;
 		this.ctx = this.canvas.getContext("2d");
+		// Make a request to server to wake it up. Dont care about results.
+		fetch("https://tetris-backend-server.herokuapp.com/scores");
 	};
 
 	gameOver = () => {
